@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -10,4 +5,81 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+}
+
+model User {
+  id           String    @id @default(uuid())
+  name         String
+  email        String    @unique
+  passwordHash String
+  bio          String?
+  avatarUrl    String?
+  favfilm      String
+  createdAt    DateTime  @default(now())
+
+  favfilm      Film      @relation(fields: [filmId], references: [id], onDelete: Cascade)
+  logs         Log[]
+  comments     Comment[]
+  likes        Like[]
+
+  following    Follow[]  @relation("Following")
+  followers    Follow[]  @relation("Followers")
+}
+
+model Log {
+  id        String    @id @default(uuid())
+  filmid    String
+  content   String?
+  authorId  String
+  createdAt DateTime  @default(now())
+
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  film      Film      @relation(fields: [filmId], references: [id], onDelete: Cascade)
+  comments  Comment[]
+  likes     Like[]
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  logId     String
+  authorId  String
+  createdAt DateTime @default(now())
+
+  log       Log      @relation(fields: [logId], references: [id], onDelete: Cascade)
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+}
+
+model Like {
+  id        String   @id @default(uuid())
+  logId     String
+  userId    String
+  createdAt DateTime @default(now())
+
+  log       Log      @relation(fields: [logId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+}
+
+model Follow {
+  id          String   @id @default(uuid())
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+
+  follower    User     @relation("Followers", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+}
+
+model Film {
+  id        String    @id @default(uuid())
+  title     String
+  year      Interger
+  poster    String
+  synopsis  String
+  director  String
+
 }
