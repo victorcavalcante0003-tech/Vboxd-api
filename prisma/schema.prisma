@@ -29,6 +29,7 @@ model User {
 model Log {
   id        String    @id @default(uuid())
   filmId    String
+  rate      Int
   content   String?
   authorId  String
   createdAt DateTime  @default(now())
