@@ -14,10 +14,10 @@ model User {
   passwordHash String
   bio          String?
   avatarUrl    String?
-  favfilm      String
+  favfilmId    String
   createdAt    DateTime  @default(now())
 
-  favfilm      Film      @relation(fields: [filmId], references: [id], onDelete: Cascade)
+  favfilm      Film      @relation(fields: [favfilmId], references: [id], onDelete: Cascade)
   logs         Log[]
   comments     Comment[]
   likes        Like[]
@@ -28,7 +28,7 @@ model User {
 
 model Log {
   id        String    @id @default(uuid())
-  filmid    String
+  filmId    String
   content   String?
   authorId  String
   createdAt DateTime  @default(now())
@@ -59,7 +59,7 @@ model Like {
   log       Log      @relation(fields: [logId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([postId, userId])
+  @@unique([logId, userId])
 }
 
 model Follow {
@@ -77,9 +77,12 @@ model Follow {
 model Film {
   id        String    @id @default(uuid())
   title     String
-  year      Interger
+  year      Int
   poster    String
   synopsis  String
   director  String
+
+  favoritedBy User[]
+  logs        Log[]
 
 }
