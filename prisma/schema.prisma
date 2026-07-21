@@ -21,6 +21,7 @@ model User {
   logs         Log[]
   comments     Comment[]
   likes        Like[]
+  watchlist    Watchlist[]
 
   following    Follow[]  @relation("Following")
   followers    Follow[]  @relation("Followers")
@@ -75,6 +76,18 @@ model Follow {
   @@unique([followerId, followingId])
 }
 
+model Watchlist {
+  id        String   @id @default(uuid())
+  userId    String
+  filmId    String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  film      Film     @relation(fields: [filmId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, filmId])
+}
+
 model Film {
   id        String    @id @default(uuid())
   title     String
@@ -85,5 +98,6 @@ model Film {
 
   favoritedBy User[]
   logs        Log[]
+  watchlist   Watchlist[]
 
 }

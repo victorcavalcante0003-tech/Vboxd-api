@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { prisma } from '../config/prisma';
 
-export async function likePost(req: Request, res: Response) {
+export async function likeLog(req: Request, res: Response) {
   if (!req.userId) {
     return res.status(401).json({ error: 'Não autenticado' });
   }
@@ -12,28 +12,28 @@ export async function likePost(req: Request, res: Response) {
     return res.status(400).json({ error: 'ID inválido' });
   }
 
-  const post = await prisma.post.findUnique({ where: { id } });
+  const log = await prisma.log.findUnique({ where: { id } });
 
-  if (!post) {
-    return res.status(404).json({ error: 'Post não encontrado' });
+  if (!log) {
+    return res.status(404).json({ error: 'Log não encontrado' });
   }
 
   const existingLike = await prisma.like.findUnique({
-    where: { postId_userId: { postId: id, userId: req.userId } },
+    where: { logId_userId: { logId: id, userId: req.userId } },
   });
 
   if (existingLike) {
-    return res.status(409).json({ error: 'Você já curtiu este post' });
+    return res.status(409).json({ error: 'Você já curtiu este log' });
   }
 
   await prisma.like.create({
-    data: { postId: id, userId: req.userId },
+    data: { logId: id, userId: req.userId },
   });
 
-  return res.status(201).json({ message: 'Post curtido' });
+  return res.status(201).json({ message: 'Log curtido' });
 }
 
-export async function unlikePost(req: Request, res: Response) {
+export async function unlikeLog(req: Request, res: Response) {
   if (!req.userId) {
     return res.status(401).json({ error: 'Não autenticado' });
   }
@@ -45,7 +45,7 @@ export async function unlikePost(req: Request, res: Response) {
   }
 
   const existingLike = await prisma.like.findUnique({
-    where: { postId_userId: { postId: id, userId: req.userId } },
+    where: { logId_userId: { logId: id, userId: req.userId } },
   });
 
   if (!existingLike) {
@@ -53,7 +53,7 @@ export async function unlikePost(req: Request, res: Response) {
   }
 
   await prisma.like.delete({
-    where: { postId_userId: { postId: id, userId: req.userId } },
+    where: { logId_userId: { logId: id, userId: req.userId } },
   });
 
   return res.status(204).send();

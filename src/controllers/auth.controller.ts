@@ -11,17 +11,22 @@ export async function register(req: Request, res: Response) {
     return res.status(400).json({ error: parsed.error.issues[0]?.message ?? 'Dados inválidos' });
   }
 
-  const { name, email, password } = parsed.data;
+  const { name, email, password, favfilmId } = parsed.data;
 
   const existingUser = await prisma.user.findUnique({ where: { email } });
   if (existingUser) {
     return res.status(409).json({ error: 'Email já está em uso' });
   }
 
+  const favfilm = await prisma.film.findUnique({ where: { id: favfilmId } });
+  if (!favfilm) {
+    return res.status(404).json({ error: 'Filme favorito não encontrado' });
+  }
+
   const passwordHash = await bcrypt.hash(password, 10);
 
   const user = await prisma.user.create({
-    data: { name, email, passwordHash },
+    data: { name, email, passwordHash, favfilmId },
     select: { id: true, name: true, email: true, createdAt: true },
   });
 

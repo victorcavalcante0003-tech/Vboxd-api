@@ -58,7 +58,7 @@ export async function getUserById(req: Request, res: Response) {
   return res.json(user);
 }
 
-export async function getUserPosts(req: Request, res: Response) {
+export async function getUserLogs(req: Request, res: Response) {
   const { id } = req.params;
 
   if (typeof id !== 'string') {
@@ -68,12 +68,12 @@ export async function getUserPosts(req: Request, res: Response) {
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 10;
 
-  const posts = await prisma.post.findMany({
+  const logs = await prisma.log.findMany({
     where: { authorId: id },
     orderBy: { createdAt: 'desc' },
     skip: (page - 1) * limit,
     take: limit,
   });
 
-  return res.json({ posts, page, limit });
+  return res.json({ logs, page, limit });
 }

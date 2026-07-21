@@ -3,7 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import authRoutes from './routes/auth.routes';
 import usersRoutes from './routes/users.routes';
-import postsRoutes from './routes/posts.routes';
+import logRoutes from './routes/log.routes';
 import commentsRoutes from './routes/comments.routes';
 import { errorHandler } from './middlewares/errorHandler';
 import { globalLimiter } from './middlewares/rateLimiter';
@@ -21,7 +21,7 @@ app.get('/health', (req, res) => {
 
 app.use('/auth', authRoutes);
 app.use('/users', usersRoutes);
-app.use('/posts', postsRoutes);
+app.use('/logs', logRoutes);
 app.use('/comments', commentsRoutes);
 
 app.use(errorHandler);

@@ -19,16 +19,16 @@ export async function createComment(req: Request, res: Response) {
     return res.status(400).json({ error: parsed.error.issues[0]?.message ?? 'Dados inválidos' });
   }
 
-  const post = await prisma.post.findUnique({ where: { id } });
+  const log = await prisma.log.findUnique({ where: { id } });
 
-  if (!post) {
-    return res.status(404).json({ error: 'Post não encontrado' });
+  if (!log) {
+    return res.status(404).json({ error: 'Log não encontrado' });
   }
 
   const comment = await prisma.comment.create({
     data: {
       content: parsed.data.content,
-      postId: id,
+      logId: id,
       authorId: req.userId,
     },
     include: {
@@ -50,7 +50,7 @@ export async function listComments(req: Request, res: Response) {
   const limit = Number(req.query.limit) || 10;
 
   const comments = await prisma.comment.findMany({
-    where: { postId: id },
+    where: { logId: id },
     orderBy: { createdAt: 'asc' },
     skip: (page - 1) * limit,
     take: limit,

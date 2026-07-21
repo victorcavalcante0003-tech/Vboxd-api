@@ -1,29 +1,34 @@
 import { Request, Response } from 'express';
 import { prisma } from '../config/prisma';
-import { createPostSchema } from '../schemas/log.schema';
+import { createLogSchema } from '../schemas/log.schema';
 import { AppError } from '../utils/AppError';
 
-export async function createPost(req: Request, res: Response) {
+export async function createLog(req: Request, res: Response) {
   if (!req.userId) throw new AppError('Não autenticado', 401);
 
-  const parsed = createPostSchema.safeParse(req.body);
+  const parsed = createLogSchema.safeParse(req.body);
   if (!parsed.success) {
     throw new AppError(parsed.error.issues[0]?.message ?? 'Dados inválidos', 400);
   }
 
-  const post = await prisma.post.create({
-    data: { content: parsed.data.content, authorId: req.userId },
+  const log = await prisma.log.create({
+    data: {
+      filmId: parsed.data.filmId,
+      rate: parsed.data.rate,
+      content: parsed.data.content,
+      authorId: req.userId,
+    },
     include: { author: { select: { id: true, name: true, avatarUrl: true } } },
   });
 
-  return res.status(201).json(post);
+  return res.status(201).json(log);
 }
 
-export async function getPostById(req: Request, res: Response) {
+export async function getLogById(req: Request, res: Response) {
   const { id } = req.params;
   if (typeof id !== 'string') throw new AppError('ID inválido', 400);
 
-  const post = await prisma.post.findUnique({
+  const log = await prisma.log.findUnique({
     where: { id },
     include: {
       author: { select: { id: true, name: true, avatarUrl: true } },
@@ -31,24 +36,24 @@ export async function getPostById(req: Request, res: Response) {
     },
   });
 
-  if (!post) throw new AppError('Post não encontrado', 404);
+  if (!log) throw new AppError('Log não encontrado', 404);
 
-  return res.json(post);
+  return res.json(log);
 }
 
-export async function deletePost(req: Request, res: Response) {
+export async function deleteLog(req: Request, res: Response) {
   if (!req.userId) throw new AppError('Não autenticado', 401);
 
   const { id } = req.params;
   if (typeof id !== 'string') throw new AppError('ID inválido', 400);
 
-  const post = await prisma.post.findUnique({ where: { id } });
-  if (!post) throw new AppError('Post não encontrado', 404);
-  if (post.authorId !== req.userId) {
-    throw new AppError('Você não tem permissão para deletar este post', 403);
+  const log = await prisma.log.findUnique({ where: { id } });
+  if (!log) throw new AppError('Log não encontrado', 404);
+  if (log.authorId !== req.userId) {
+    throw new AppError('Você não tem permissão para deletar este log', 403);
   }
 
-  await prisma.post.delete({ where: { id } });
+  await prisma.log.delete({ where: { id } });
   return res.status(204).send();
 }
 
@@ -62,9 +67,9 @@ export async function getFeed(req: Request, res: Response) {
     where: { followerId: req.userId },
     select: { followingId: true },
   });
-  const followingIds = following.map((f) => f.followingId);
+  const followingIds = following.map((f: { followingId: string }) => f.followingId);
 
-  const posts = await prisma.post.findMany({
+  const logs = await prisma.log.findMany({
     where: { authorId: { in: followingIds } },
     orderBy: { createdAt: 'desc' },
     skip: (page - 1) * limit,
@@ -75,5 +80,5 @@ export async function getFeed(req: Request, res: Response) {
     },
   });
 
-  return res.json({ posts, page, limit });
+  return res.json({ logs, page, limit });
 }
