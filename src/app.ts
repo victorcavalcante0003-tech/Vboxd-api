@@ -4,6 +4,7 @@ import cors from 'cors';
 import authRoutes from './routes/auth.routes';
 import usersRoutes from './routes/users.routes';
 import logRoutes from './routes/log.routes';
+import filmsRoutes from './routes/films.routes';
 import commentsRoutes from './routes/comments.routes';
 import { errorHandler } from './middlewares/errorHandler';
 import { globalLimiter } from './middlewares/rateLimiter';
@@ -23,6 +24,7 @@ app.use('/auth', authRoutes);
 app.use('/users', usersRoutes);
 app.use('/logs', logRoutes);
 app.use('/comments', commentsRoutes);
+app.use('/films', filmsRoutes);
 
 app.use(errorHandler);
 
