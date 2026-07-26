@@ -32,8 +32,9 @@ export async function getLogById(req: Request, res: Response) {
     where: { id },
     include: {
       author: { select: { id: true, name: true, avatarUrl: true } },
+      film: true,
       _count: { select: { likes: true, comments: true } },
-    },
+},
   });
 
   if (!log) throw new AppError('Log não encontrado', 404);
@@ -76,8 +77,9 @@ export async function getFeed(req: Request, res: Response) {
     take: limit,
     include: {
       author: { select: { id: true, name: true, avatarUrl: true } },
+      film: true,
       _count: { select: { likes: true, comments: true } },
-    },
+},
   });
 
   return res.json({ logs, page, limit });

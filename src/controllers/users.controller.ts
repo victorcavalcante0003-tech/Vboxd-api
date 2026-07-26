@@ -9,7 +9,7 @@ export async function getMe(req: Request, res: Response) {
 
   const user = await prisma.user.findUnique({
     where: { id: req.userId },
-    select: { id: true, name: true, email: true, bio: true, avatarUrl: true, createdAt: true },
+    select: { id: true, name: true, email: true, bio: true, avatarUrl: true, createdAt: true, favfilmId: true, favfilm: true },
   });
 
   if (!user) {
@@ -48,7 +48,7 @@ export async function getUserById(req: Request, res: Response) {
 
   const user = await prisma.user.findUnique({
     where: { id },
-    select: { id: true, name: true, bio: true, avatarUrl: true, createdAt: true },
+    select: { id: true, name: true, bio: true, avatarUrl: true, createdAt: true, favfilmId: true, favfilm: true },
   });
 
   if (!user) {
@@ -73,7 +73,8 @@ export async function getUserLogs(req: Request, res: Response) {
     orderBy: { createdAt: 'desc' },
     skip: (page - 1) * limit,
     take: limit,
-  });
+    include: { film: true, _count: { select: { likes: true, comments: true } } },
+});
 
   return res.json({ logs, page, limit });
 }
